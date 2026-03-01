@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lloyds-green: #006A4A;
+  --color-lloyds-forest: #006A4C;
+  --color-lloyds-seashell: #F1F1F1;
+  --color-lloyds-black: #000000;
+  --color-lloyds-green-light: #e6f2ed;
+  --color-lloyds-green-50: #f0f7f4;
+  --color-lloyds-grey-warm: #F7F7F5;
+  --color-lloyds-grey-mid: #D9D9D6;
+  --color-lloyds-grey-dark: #4A4A4A;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--color-lloyds-seashell);
+  color: var(--color-lloyds-black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+sentence-transformers
+qdrant-client
+pandas
+scikit-learn
+python-multipart
+torch
