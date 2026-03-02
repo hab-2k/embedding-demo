@@ -63,6 +63,7 @@ def upsert_chunks(chunks: list[dict], vectors: list[list[float]]) -> int:
                 "text": chunk["text"],
                 "start_index": chunk["start_index"],
                 "end_index": chunk["end_index"],
+                "date": chunk["date"],
             },
         )
         for chunk, vector in zip(chunks, vectors)

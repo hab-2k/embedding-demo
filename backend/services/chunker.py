@@ -4,6 +4,7 @@ import uuid
 def chunk_sentences(
     sentences: list[dict],
     transcript_id: str,
+    date: str,
     chunk_size: int = 6,
     step_size: int = 3,
 ) -> list[dict]:
@@ -40,6 +41,7 @@ def chunk_sentences(
             "text": chunk_text,
             "start_index": start_index,
             "end_index": end_index,
+            "date": date,
         })
 
     return chunks

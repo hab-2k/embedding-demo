@@ -20,22 +20,40 @@ export interface SearchResponse {
   query: string;
 }
 
+export interface TimelinePoint {
+  period: string;
+  chunk_count: number;
+}
+
 export interface ThemeExcerpt {
   chunk_id: string;
   transcript_id: string;
   text: string;
+  x: number;
+  y: number;
+  date: string;
 }
 
 export interface Theme {
   cluster_id: number;
   label: string;
+  keywords: string[];
   chunk_count: number;
+  x: number;
+  y: number;
   representative_excerpts: ThemeExcerpt[];
+  timeline: TimelinePoint[];
+  summary: string;
 }
 
 export interface ThemesResponse {
   themes: Theme[];
-  n_clusters: number;
+  total_chunks: number;
+  noise_count: number;
+  min_cluster_size: number;
+  time_periods: string[];
+  insights: string[];
+  llm_enhanced: boolean;
 }
 
 export interface RiskFlag {
@@ -88,9 +106,13 @@ export async function searchTranscripts(
 }
 
 export async function getThemes(
-  nClusters: number = 8
+  minClusterSize: number = 10,
+  enhanceWithLlm: boolean = false
 ): Promise<ThemesResponse> {
-  const params = new URLSearchParams({ n_clusters: String(nClusters) });
+  const params = new URLSearchParams({
+    min_cluster_size: String(minClusterSize),
+    enhance_with_llm: String(enhanceWithLlm),
+  });
   const res = await fetch(`${BASE_URL}/themes?${params}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));

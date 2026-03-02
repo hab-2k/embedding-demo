@@ -21,22 +21,40 @@ class SearchResponse(BaseModel):
     query: str
 
 
+class TimelinePoint(BaseModel):
+    period: str
+    chunk_count: int
+
+
 class ThemeExcerpt(BaseModel):
     chunk_id: str
     transcript_id: str
     text: str
+    x: float
+    y: float
+    date: str
 
 
 class Theme(BaseModel):
     cluster_id: int
     label: str
+    keywords: list[str]
     chunk_count: int
+    x: float
+    y: float
     representative_excerpts: list[ThemeExcerpt]
+    timeline: list[TimelinePoint]
+    summary: str = ""
 
 
 class ThemesResponse(BaseModel):
     themes: list[Theme]
-    n_clusters: int
+    total_chunks: int
+    noise_count: int
+    min_cluster_size: int
+    time_periods: list[str]
+    insights: list[str] = []
+    llm_enhanced: bool = False
 
 
 class RiskFlag(BaseModel):

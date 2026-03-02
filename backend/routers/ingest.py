@@ -8,6 +8,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from models.schemas import IngestResponse
 from services.chunker import chunk_sentences
 from services.embedder import embed_texts
+from services.theme_cache import bump_version
 from services.vector_store import ensure_collection, transcript_exists, upsert_chunks
 
 logger = logging.getLogger(__name__)
@@ -28,11 +29,19 @@ async def ingest_csv(file: UploadFile = File(...)) -> IngestResponse:
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse CSV: {e}")
 
-    required_cols = {"transcript_id", "transcript_index", "text"}
+    required_cols = {"transcript_id", "transcript_index", "text", "date"}
     if not required_cols.issubset(set(df.columns)):
         raise HTTPException(
             status_code=400,
             detail=f"CSV must contain columns: {required_cols}. Got: {list(df.columns)}",
+        )
+
+    try:
+        pd.to_datetime(df["date"], format="%Y-%m-%d")
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Column 'date' must contain valid ISO dates (YYYY-MM-DD).",
         )
 
     df = df.dropna(subset=["text"])
@@ -51,12 +60,14 @@ async def ingest_csv(file: UploadFile = File(...)) -> IngestResponse:
             skipped += 1
             continue
 
-        sentences = df[df["transcript_id"] == tid].to_dict("records")
+        tid_rows = df[df["transcript_id"] == tid]
+        date_str = str(tid_rows.iloc[0]["date"])
+        sentences = tid_rows.to_dict("records")
         sentences = [
             {"transcript_index": int(s["transcript_index"]), "text": str(s["text"])}
             for s in sentences
         ]
-        chunks = chunk_sentences(sentences, tid_str)
+        chunks = chunk_sentences(sentences, tid_str, date=date_str)
         all_chunks.extend(chunks)
 
     processed = len(transcript_ids) - skipped
@@ -74,6 +85,8 @@ async def ingest_csv(file: UploadFile = File(...)) -> IngestResponse:
     vectors = embed_texts(texts)
 
     chunks_written = upsert_chunks(all_chunks, vectors)
+    if chunks_written > 0:
+        bump_version()
     elapsed = round(time.time() - start_time, 2)
 
     logger.info(

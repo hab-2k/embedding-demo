@@ -4,5 +4,8 @@ sentence-transformers
 qdrant-client
 pandas
 scikit-learn
+umap-learn
+hdbscan
 python-multipart
 torch
+requests
